@@ -1,0 +1,110 @@
+TP SVL 15-16 - vérification de programmes objets
+
+1. Hoare et Dijkstra
+
+Q - Que signifie le triplet de Hoare {x > 0} y := x {y > 0} ?
+
+	Cela signifie que si x > 0, et qu'on execute le programme y := x, alors y doit vérifier l'inéquation y > 0.
+
+Q - Indiquer pour chacun des triplets suivants s'il est valide ou non, dans ce cas donner un contre-exemple.
+
+* {x > 0} y := x {y > 0}		Valide
+* {x > 0} x := x + 1 {x > 10}		Invalide. Ex : x=1
+* {x >0} x := 15 {x > 10}		Valide
+
+Q - Donner la formule logique qui doit être prouvée valide pour prouver que { x > 5 } x := x + 1 { x > 3 } en utilisant sp
+
+	sp(x:=x+1, x>5)
+
+Q - Donner la formule logique qui doit être prouvée valide pour prouver que { True} si x > 0 then y := x else y := -x  { y >= 0 } en utilisant sp
+	
+	sp(if x>0 then y:=x else y:=-x, True) = sp(y:=x, x > 0) or sp(y:=-x, x<=0)
+	
+
+2. Validité et satisfaisabilité
+
+Q- Qu'est-ce qu'une formule valide ?
+	
+	C'est une formule toujours vraie, peu importe la valeur de x, si on peut trouver un x qui satisfait la pré-condition
+
+Q- qu'est-ce qu'une formule satisfaisable ?
+
+	C'est une formule qui, si on peut trouver un x (et au moins un) qui satisfait la pré-condition, est vraie
+
+
+Q- F valide ssi ... satisfaisable (compléter les ...)
+
+	F valide ssi non F n'est pas satisfaisable
+
+3. z3
+
+Q- qu'est-ce qu'un solveur SMT ?
+
+	C'est un programme qui permet de vérifier si une formule est satisfaisable ou non
+
+Q- qu'est-ce qu'une logique non décidable ?
+
+	C'est une logique à partir de laquelle on ne peut pas déduire si elle est vraie, ou si sa négation est vraie
+
+Q- la logique du premier ordre non quantifiée est-elle décidable ?
+
+	Oui
+
+Q- donner une formule non quantifiée pour laquelle z3 ne sait pas si elle satisfaisable ou non
+
+	x*x*x et x*y
+
+Q- prouver avec z3 que { x > 5 } x := x + 1 { x > 3 } (utiliser les résultats précédents)
+
+	sp(x:=x+1, x>5)
+	Il existe x0 tel que x0 > 5 et x=x0+1
+	Pour tout x(Il existe x0 tel que x0 > 5 et x=x0+1) => x > 3
+	Pour tout x Pour tout x0, (x0 > 5 et x=x0+1) => x > 3
+
+
+	from z3 import *
+	x = Int('x')
+	x1 = x + 1
+	s = Solver()
+	s.add(Not(Implies(x>5, x1>3))
+	print(s.check())
+	print(s.model())
+
+Q - prouver avec z3 que { True} si x > 0 then y := x else y := -x  { y >= 0 }  (utiliser les résultats précédents)
+
+	sp(if x>0 then y:=x else y:=-x, True)
+	sp(y:=x, x>0) or sp(y:=-x, x<=0)
+	Il existe x0 tel que x0 > 0 et y:=x0 OR Il existe x0 tel que x0 <= 0 et y:=-x
+	Pour tout x(Il existe x0 tel que x0 > 0 et y:=x0 OR Il existe x0 tel que x0 <= 0 et y:=-x) => y >=0
+	Pour tout x((Il existe x0 tel que x0 > 0 et y:=x0 => y >=0) ET (Il existe x0 tel que x0 <= 0 et y:=-x => y >=0)) 
+	Pour tout x(Il existe x0 tel que x0 > 0 et y:=x0 => y >=0) ET Pour tout x (Il existe x0 tel que x0 <= 0 et y:=-x => y >=0)
+	Pour tout x.Pour tout x0((x0 > 0 et y:=x0 => y >=0) ET (x0 <= 0 et y:=-x => y >=0)) 	
+	Pour tout x.Pour tout x0((x0 > 0 et y:=x0) OU (x0 <= 0 et y:=-x)) => y >=0 
+
+	from z3 import *
+	x = Int('x')
+	if(x>0):
+		y=x
+	else:
+		y=-x
+
+	s = Solver()
+	s.add(Not(Implies(Or(x>0, x<=0), y >= 0)
+	print(s.check())
+	print(s.model())
+
+	
+
+	
+
+4. vérification avec les outils de RiSE - les comptes avec et sans découvert
+
+Reprendre l'étude de cas "compte" fait en CTD8 pour présenter la prog par contrats.
+
+Q- En utilisant Rise4fun pour Spec#, spécifier et vérifier un compte simple (qui ne prend pas en compte la notion de découvert). Le programme est-il prouvé correct ?
+
+Q- ajouter la notion de découvert telle que vue dans la démo du CTD8. Le programme est-il prouvé correct ? Voyez-vous pourquoi ?
+
+Q- sur ce même programme, utiliser Contracts + interprétation abstraite. Le programme est-il prouvé correct ? Une suggestion de modification est-elle proposée ? Qu'en pensez-vous ?
+
+Q- pensez-vous qu'un outil à la Pex vous aurait permis de trouver l'erreur ?

@@ -1,0 +1,182 @@
+Logique de Hoare
+
+Système déductif :
+	- axiomes
+	- règles d'inférence
+
+{P} S {Q}
+
+Pourvu que P soit vrai, après l'exécution de S, Q est vrai
+
+- skip
+- affectation
+- séquence
+- conditionnelle
+- boucle
+
+ex de triplets :
+	- {y>5} x:=y {x>5} 		Valide
+	- {x>5} y:=x {y>5}		Invalide. Ex : x=10, y=0
+	- {y>5} x:=y {x>10}		Invalide. Ex : y=6
+	- {x>0} x:=x+5 {x>0}	Valide
+	- {x>0} x:=x+5 {x>5}	Valide
+
+axiome Hoare affectation
+
+__________________
+{Q[x<-E]} x:=E {Q}
+______________________
+{x>5[x<-y]} x:=y {x>5}
+________________
+{y>5} x:=y {x>5}
+
+
+axiome de Floyd affectation
+
+________________________________________________
+{p} x:=E {Il existe x0.P[x<-x0] et x = E{x<-x0]}
+
+____________________________________________
+{x>-3} x:=x+3 {Il existe x0.x0>-3 et w=x0+3}
+
+____________________________________
+{y>5} x:=y {Il existe x0.y>5 et x=y}
+
+-> On peut enlever le 'Il existe x0' car c'est une variable libre inutilisé
+
+Transformation de prédicat de Dijkstra
+
+but: réduire le problème de prouver un triplet de Hoare en le problème de prouver la validité d'une formule logique
+
+p => q
+
+p doit être le plus fort possible, q le plus faible possible
+
+
+wp : weakest précondition
+wp : prédicat x programme -> prédicat + faible précondition
+		post
+wp(x:=E,Q)=Q[x<-E] cf Hoare affectation
+
+ex : wp(x:=x+3, x>0) = x+3 > 0
+
+_______________________________________________________________
+
+sp = strongest postcondition
+sp : predicat x programme -> predicat + forte postcondition
+
+sp(x:=E, P) = Il existe x0.P[x<-x0] ^ x=E [x<-x0]	 cf Floyd
+
+ex : sp(x:=x+3, x>0) = Il existe x0.x0>0 ^ x = x0+3
+
+
+
+_________________________________________
+
+{P} S {Q} ssi pour tout x.sp(P, S] => Q
+						+ forte
+
+
+
+
+ex prouver que {x>20} x:= x-5 {x>10} est valide
+
+valide ssi pour tout x.sp(x:=x-5,x>20) => x>10
+
+sp(x:=x-5,x>20) = Il existe x0.x0>20^x=x0-5
+
+prouver la validité de : pour tout x(Il existe x0.x0>20 ^ x=x.0-5) => x>10
+
+
+ex :(Il existe x0.Phi1(x0,x)) => Phi2(x)  <=> Pour tout x0.(Phi1(x0,x)=>Phi2(x))
+								x0 appartient f0(Phi2)
+
+
+
+preuve : Il existe x0.Phi1(x0,x) => Phi2(x)
+		ssi not(Il existe x0.Phi1(x0,x)) V Phi2(x)
+		ssi (Pour tout x0.notPhi1(x0,x) V Phi2(x))
+		ssi Pour tout x0.Phi1(x0, x) => Phi2(x))
+
+
+
+
+prouver la validité de Pour tout x.pour tout x0. x0>20 ^ x = x0-5 => x>10
+													P		S			Q
+
+sp(S1;S2, P) = sp(S2,Sp(S1,p))
+
+ex : {x>10} x:=x-1 ; x:=x-2 {x>0}
+
+pour tout x.sp(x:=x-2,sp(x:=x-1, x>10)) => x>0
+sp(x:=x-1, x>10) = Il existe x0.x0>10 ^ x=x0-1
+sp(x:=x-2, Il exite x0.x0>10 ^ x=x0-1) =
+	Il existe x1.((Il existe x0.x0>10 ^ x1=x0-1) ^ x=x1-2)
+
+prouver la validité de Pour tout x(Il existe x1((Il existe x0.x0>10 ^ x1=x0-1) ^ x=x1-2) => x>0)
+
+ssi pour tout x.pour tout x1.pour tout x2((x0>10 ^ x1=x0-1 ^ x=x1-2) => x>0
+											P	  |			S		  |	Q
+
+
+
+sp(if b then S1 else S2 ; p) = sp(S1, P ^ b) V sp(S2, P ^ not b)
+
+ex : {y >= 0} si b alors x:=y else x:=y+1 {x>=0}
+
+Pour tout y.pour tout b((Il existe x0.y>=0 ^ b ^ x=y) V (Il existe x0.y>=0 ^ not b ^ x=y+1)) => x>=0
+ssi Pour tout y.pour tout b (Il existe x0.y>=0 ^ b ^ x=y => x>=0) ^ (Il existe x0.y>=0^ not b ^ x=y+1 => x>=0)
+ssi Pour tout y.pour tout b (Il existe x0.y>=0 ^ b ^ x=y => x>=0) ^  Pour tout y pour tout b (Il existe x0.y>=0^ not b ^ x=y+1 => x>=0)
+ssi Pour tout y.pour tout b.pour tout x0(y>=0 ^ b ^ x=y => x>=0) ^ y>=0 ^ not b ^ x=y+1 => x>=0)
+ssi Pour tout y.pour tout b.pour tout x0((y>=0 ^ b ^ x=y V y>=0 ^  not b ^ x=y+1) => x>=0
+											P  | b | S1  |  P   | not b  | S2     |   Q
+
+
+
+formule valide : si vraie pour toute valeur affectée à ses variables libres
+
+	x>10 => x>0		Valide
+	x>0 => x>10		Invalide. Ex: x=5
+
+
+formule satisfaisable : si il existe des valeurs qui la rendent vraie si affectées à ses variables libres
+
+	x>0 => x>10 satisfaisable ex : x=11 	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
