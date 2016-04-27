@@ -112,8 +112,17 @@ Reprendre l'étude de cas "compte" fait en CTD8 pour présenter la prog par contra
 
 Q- En utilisant Rise4fun pour Spec#, spécifier et vérifier un compte simple (qui ne prend pas en compte la notion de découvert). Le programme est-il prouvé correct ?
 
+	Oui
+
 Q- ajouter la notion de découvert telle que vue dans la démo du CTD8. Le programme est-il prouvé correct ? Voyez-vous pourquoi ?
+
+	Le programme est correct;
 
 Q- sur ce même programme, utiliser Contracts + interprétation abstraite. Le programme est-il prouvé correct ? Une suggestion de modification est-elle proposée ? Qu'en pensez-vous ?
 
+	Le programme prouvé n'est pas correct car désormais, l'invariant de classe n'est plus valide (celui qui spécifiait que la balance est positive ou nulle)
+	Il ne propose pas de suggestion de modification.
+
 Q- pensez-vous qu'un outil à la Pex vous aurait permis de trouver l'erreur ?
+
+	Nous ne savons pas
